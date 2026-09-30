@@ -11,28 +11,18 @@ class Plansza:
         # Ta linijka u góry tworzy planszę w jednej linijce. (Mogłem to zrobić w bardziej rozbudowanej funckji ale python to python :P)
 
         # 55555555555
-
         # 50000000005    (5 to ramka, a 0 to pusty tile. jeśli rozmiar jest podany 9 to jest 11 rzędów i 11 kolumn ponieważ ramka z każdej strony liczy się jako pole)
-
         # 50000000005
-
         # 50000000005
-
         # 50000000005
-
         # 50000000005
-
         # 50000000005
-
         # 50000000005
-
         # 50000000005 
-
         # 50000000005
-
         # 55555555555
         
-        self.plansza = [
+        self.plansza = [ ### DO USUNIĘCIA PÓŹNIEJ!!!!!! (tylko na potrzeby testU oWo )
             [Tile.BORDER, Tile.BORDER, Tile.BORDER, Tile.BORDER, Tile.BORDER, Tile.BORDER, Tile.BORDER,Tile.BORDER,Tile.BORDER],
             [Tile.BORDER, Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.BORDER],
             [Tile.BORDER, Tile.BLACK,  Tile.BLACK,  Tile.BLACK,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.EMPTY,  Tile.BORDER],
@@ -64,8 +54,17 @@ class Plansza:
                 Tile.TEMP_ONE.value: "\033[48;5;52m*\033[0m",
                 Tile.TEMP_ZERO.value: "\033[48;5;55m*\033[0m",
                 }
-        
-        
+        print(
+            "Legenda: "
+            "\033[48;5;0mPusty\033[0m",
+            "\033[48;5;27mCzarny\033[0m",    ### Zrobione na szybko ale potrzebne aby łatwiej odnajdywać się w planszy (:
+            "\033[48;5;28mBiały\033[0m",
+            "\033[48;5;52mCzarnyPunkt\033[0m",
+            "\033[48;5;52mBiałyPunkt\033[0m",
+            "\033[48;5;58mRamka\033[0m",
+            "\033[48;5;52mTempJeden\033[0m",
+            "\033[48;5;55mTempZero\033[0m"
+        )
         for rzad in plansza:
 
             for pole in rzad:
@@ -80,9 +79,9 @@ class Plansza:
         self.plansza[y][x] = pole
         
 
-    def sprawdz_punkt(self, x: int, y: int, czy_czarne: bool):
+    def sprawdz_punkt(self, x: int, y: int, odw: list[tuple[int, int]], czy_czarne: bool):
 
-        w = self.__policz_punkt(self.plansza, x, y, czy_czarne)
+        w = self.__policz_punkt(copy.deepcopy(self.plansza), odw, x, y, czy_czarne)
         
         punkty = 0
 
@@ -91,87 +90,107 @@ class Plansza:
                 if pole == Tile.TEMP_ONE:
                     punkty += 1
         
-        print("Punkty: " + punkty)
+        print("Punkty: " + str(punkty))
         
         self.debug_printuj_plansze(w)
-    
 
-    def __check_for_ok_combo(self, temp_plansza: list[list[Tile]], x: int, y: int, czy_czarne: bool):
-        ok_combo = 0
-        
-        accepted = [
-        
-                    Tile.BORDER,
-        
-                    Tile.BLACK_POINT if czy_czarne else Tile.WHITE_POINT,
-        
-                    Tile.BLACK if czy_czarne else Tile.WHITE
-        
-                    ]
-                
-        for offset_x, offset_y in ((-1, 0), (1, 0), (0, -1), (0, 1)):
 
-            if temp_plansza[y + offset_y][x + offset_x] in accepted:
+    def __policz_punkt(
+        self,
+        plansza: list[list[Tile]],
+        odwiedzone: list[tuple[int, int]],
+        x: int,
+        y: int,
+        czy_czarne: bool
+    ) -> list[list[Tile]]:
 
-                ok_combo += 1
-            
-        return ok_combo
-
-    def __policz_punkt(self, plansza: list[list[Tile]], x: int, y: int, czy_czarne: bool) -> list[list[Tile]]:
-        
         tile = Tile.BLACK if czy_czarne else Tile.WHITE
 
-        empty = [Tile.TEMP_ZERO, Tile.EMPTY]
-        
+        empty = [
+            Tile.TEMP_ZERO
+        ]
 
         accepted = [
-
             Tile.BORDER,
-
             Tile.BLACK_POINT if czy_czarne else Tile.WHITE_POINT,
-
-            Tile.BLACK if czy_czarne else Tile.WHITE
-
-            ]
-        
+            tile,
+            Tile.TEMP_ONE
+        ]
 
         unaccepted = [
-
             Tile.WHITE if czy_czarne else Tile.BLACK,
-
-            Tile.WHITE_POINT if czy_czarne else Tile.WHITE_POINT
-
+            Tile.WHITE_POINT if czy_czarne else Tile.BLACK_POINT
         ]
-        
 
         temp_plansza = copy.deepcopy(plansza)
+
+        odwiedzone = set(odwiedzone)
+
+        def sprawdz(x: int, y: int) -> None:
+            
+            if (x, y) in odwiedzone:
+                return
+
+            odwiedzone.add((x, y))
+
+            ok_combo = 0
+
+            for offset_x, offset_y in (
+                (-1, 0),
+                (1, 0),
+                (0, -1),
+                (0, 1)
+            ):
+                nx = x + offset_x
+                ny = y + offset_y
+
+                if temp_plansza[ny][nx] in accepted:
+                    ok_combo += 1
+
+            if (
+                any(
+                    temp_plansza[y + offset_y][x + offset_x] in unaccepted
+                    for offset_x, offset_y in (
+                        (-1, 0),
+                        (1, 0),
+                        (0, -1),
+                        (0, 1)
+                    )
+                )
+                or
+                sum(
+                    temp_plansza[y + offset_y][x + offset_x] in empty
+                    for offset_x, offset_y in (
+                        (-1, 0),
+                        (1, 0),
+                        (0, -1),
+                        (0, 1)
+                    )
+                ) >= 1
+            ):
+                ok_combo = 0
+
+            if ok_combo >= 2:
+                temp_plansza[y][x] = Tile.TEMP_ONE
+            else:
+                temp_plansza[y][x] = Tile.TEMP_ZERO
+                
+            for offset_x, offset_y in (
+                (-1, 0),
+                (1, 0),
+                (0, -1),
+                (0, 1)
+            ):
+                nx = x + offset_x
+                ny = y + offset_y
+
+                if (
+                    (nx, ny) not in odwiedzone
+                    and temp_plansza[ny][nx] == Tile.EMPTY
+                ):
+                    sprawdz(nx, ny)
         
-        self.debug_printuj_plansze(temp_plansza)
-        
-        #input()
 
-        if self.__check_for_ok_combo(temp_plansza, x, y, czy_czarne) >= 2:
-            temp_plansza[y][x] = Tile.TEMP_ONE
-
-        else:
-
-            temp_plansza[y][x] = Tile.TEMP_ZERO
-
-
-        for offset_x, offset_y in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-
-            if temp_plansza[y + offset_y][x + offset_x] == Tile.EMPTY:
-
-                temp_plansza = self.__policz_punkt(temp_plansza, y + offset_y, x + offset_x, czy_czarne)
-        
-
-        for offset_x, offset_y in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-
-            if temp_plansza[y + offset_y][x + offset_x] in empty or temp_plansza[y + offset_y][x + offset_x] in unaccepted:
-
-                temp_plansza[y + offset_y][x + offset_x] = Tile.TEMP_ZERO
-        
-        if self.__check_for_ok_combo(temp_plansza, x, y, czy_czarne) >= 2:
-            temp_plansza[y][x] = Tile.TEMP_ONE
+        sprawdz(x, y)
 
         return temp_plansza
