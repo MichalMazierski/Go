@@ -2,9 +2,9 @@ from enums import *
 from plansza import Plansza
 
 class Gra: ## Główna klasa, tutaj wszystko się dzieje
-    def __init__(self, rozmiar: int, bonus: float):
-        self.plansza = Plansza(rozmiar)
-        self.bonus = bonus
+    def __init__(self, rozmiar: int, komi: float, sgf: str = ""):
+        self.plansza = Plansza(rozmiar, sgf)
+        self.komi = komi
         self.gra_trwa = True
     
     def graj(self, tura_czarny: bool = True):
