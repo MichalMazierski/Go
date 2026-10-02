@@ -49,11 +49,15 @@ class Plansza:
             "\033[48;5;222mTempJeden\033[0m",
             "\033[48;5;55mTempZero\033[0m"
         )
-        for rzad in plansza:
+        print("    ", end="")
+        for i in range(len(plansza)):
+            print(str(i % 10), end="")
+        print()
+        for rzad in range(len(plansza)):
+            print(str(rzad) + (".  " if rzad < 10 else ". "), end="")
+            for kolumna in range(len(plansza[rzad])):
 
-            for pole in rzad:
-
-                print(slownik[pole.value], end="")
+                print(f"{slownik[plansza[rzad][kolumna].value]}", end="")
 
             print()
     
