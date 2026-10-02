@@ -84,16 +84,22 @@ class Plansza:
         w = self.__policz_punkt(copy.deepcopy(self.plansza), odw, x, y, czy_czarne)
         
         punkty = 0
-
-        for rzad in w:
-            for pole in rzad:
-                if pole == Tile.TEMP_ONE:
-                    punkty += 1
         
         print("Punkty: " + str(punkty))
-        
-        self.debug_printuj_plansze(w)
 
+        nowa_plansza = [[Tile.EMPTY for j in range(len(self.plansza))] for i in range(len(self.plansza))]
+        
+        final_punkt = Tile.BLACK_POINT if czy_czarne else Tile.WHITE_POINT
+        
+        for i in range(len(nowa_plansza)):
+            for j in range(len(nowa_plansza[i])):
+                if w[i][j] == Tile.TEMP_ONE:
+                    nowa_plansza[i][j] = final_punkt
+                    punkty += 1
+                else:
+                    nowa_plansza[i][j] = self.plansza[i][j]
+
+        self.plansza = nowa_plansza
 
     def __policz_punkt(
         self,
