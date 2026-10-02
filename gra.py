@@ -11,15 +11,11 @@ class Gra: ## Główna klasa, tutaj wszystko się dzieje
         x = int(input("Podaj x: "))
         y = int(input("Podaj y: "))
         
-        tak = input("Tak: ")
+        self.plansza.zmien_pole(x, y, Tile.BLACK if tura_czarny else Tile.WHITE)
         
-        if tak != "":
-            self.plansza.sprawdz_punkt(x, y,[], tura_czarny)
-        else:
-            self.plansza.zmien_pole(x, y, Tile.BLACK if tura_czarny else Tile.WHITE)
-            
-            self.plansza.debug_printuj_plansze(self.plansza.plansza)
-            
+        self.plansza.sprawdz(tura_czarny)
+        self.plansza.sprawdz(not tura_czarny)
+        
         self.graj(not tura_czarny)
     
     

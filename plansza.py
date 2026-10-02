@@ -63,11 +63,17 @@ class Plansza:
         self.plansza[y][x] = pole
         
 
-    def sprawdz_punkt(self, x: int, y: int, odw: list[tuple[int, int]], czy_czarne: bool):
-
-        w = self.__policz_punkt(copy.deepcopy(self.plansza), odw, x, y, czy_czarne)
+    def sprawdz(self, czy_czarne: bool):
         
-        self.debug_printuj_plansze(w)
+        odw = []
+        
+        w = copy.deepcopy(self.plansza)
+        
+        for rzad in range(len(self.plansza)):
+            for kolumna in range(len(self.plansza[rzad])):
+                if w[rzad][kolumna] == Tile.EMPTY:
+                    w = self.__policz_punkt(copy.deepcopy(self.plansza), odw, rzad, kolumna, czy_czarne)
+        
         
         punkty = 0
 
@@ -119,9 +125,7 @@ class Plansza:
 
         temp_plansza = copy.deepcopy(plansza)
 
-        def sprawdz(x: int, y: int) -> None:
-            
-            # self.debug_printuj_plansze(temp_plansza)
+        def sprawdz_rekursywny(x: int, y: int) -> None:
             
             if (x, y) in odwiedzone:
                 return
@@ -170,8 +174,6 @@ class Plansza:
             else:
                 temp_plansza[y][x] = Tile.TEMP_ZERO
             
-            self.debug_printuj_plansze(temp_plansza)
-                
             for offset_x, offset_y in (
                 (-1, 0),
                 (1, 0),
@@ -185,7 +187,7 @@ class Plansza:
                     (nx, ny) not in odwiedzone
                     and temp_plansza[ny][nx] == Tile.EMPTY
                 ):
-                    sprawdz(nx, ny)
+                    sprawdz_rekursywny(nx, ny)
         
         def rozsiej_zero(x: int, y: int) -> None:
             if (x, y) in odwiedzone:
@@ -211,7 +213,7 @@ class Plansza:
                     rozsiej_zero(nx, ny)
         
 
-        sprawdz(x, y)
+        sprawdz_rekursywny(x, y)
         
         for odw in odwiedzone[::-1]:
             if temp_plansza[odw[1]][odw[0]] == Tile.TEMP_ZERO: 
