@@ -24,6 +24,8 @@ class Gra: ## Główna klasa, tutaj wszystko się dzieje
         self.plansza.sprawdz(tura_czarny)
         self.plansza.sprawdz(not tura_czarny)
         
+        self.plansza.debug_printuj_plansze(self.plansza.plansza)
+        
         self.graj(not tura_czarny)
     
     

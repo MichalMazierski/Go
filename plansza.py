@@ -9,8 +9,8 @@ class Plansza:
 
         self.plansza = [[Tile.BORDER for _ in range(rozmiar + 2)] if i == 0 or i == rozmiar + 1 else [Tile.BORDER if k == 0 or k == rozmiar + 1 else Tile.EMPTY for k in range(rozmiar + 2)] for i in range(rozmiar + 2)]
 
-        self.jency_dla_bialych = 0
-        self.jency_dla_czarnych = 0
+        self.bonus_za_zbicia_biali = 0
+        self.bonus_za_zbicia_czarni = 0
         # Ta linijka u góry tworzy planszę w jednej linijce. (Mogłem to zrobić w bardziej rozbudowanej funckji ale python to python :P)
 
         # 55555555555
@@ -89,8 +89,6 @@ class Plansza:
                     w = self.polacz_plansze(w, self.__policz_punkt(w, kolumna, rzad, czy_czarne), czy_czarne)
         
         self.plansza = self.polacz_plansze(w, w, czy_czarne, True)
-        
-        self.debug_printuj_plansze(self.plansza)
 
     def __policz_punkt(
         self,
@@ -166,6 +164,10 @@ class Plansza:
                 for kolumna in range(len(temp_plansza[rzad])):
                     if temp_plansza[rzad][kolumna] == dead_tile:
                         temp_plansza[rzad][kolumna] = Tile.EMPTY
+                        if dead_tile == Tile.WHITE_DEAD:
+                            self.bonus_za_zbicia_czarni += 1
+                        else:
+                            self.bonus_za_zbicia_czarni += 1
         
         def sprawdz_rekursywny(x: int, y: int) -> None:
             
@@ -283,13 +285,11 @@ class Plansza:
         
         # self.debug_printuj_plansze(temp_plansza)
         
-        
         for odw in odwiedzone[::-1]:
             if temp_plansza[odw[1]][odw[0]] in [Tile.TEMP_ZERO, Tile.TEMP_OPPOSITE_ZERO]: 
                 odwiedzone = []
                 rozsiej_zero(*odw)
                 break
-        
         
         return temp_plansza
 
