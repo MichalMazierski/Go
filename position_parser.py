@@ -8,9 +8,9 @@ def parse_position_from_sgf(rozmiar: int, sgf: str):
     
     translator = dict()
     
-    alfabet = "abcdefghijklmnopqrstuvwxyz"
+    alfabet = " abcdefghijklmnopqrstuvwxyz"
     
-    for i in range(rozmiar):
+    for i in range(rozmiar + 1):
         translator[alfabet[i]] = i
         
     print(translator)
@@ -24,3 +24,14 @@ def parse_position_from_sgf(rozmiar: int, sgf: str):
         plansza[rzad][kolumna] = tile
     
     return plansza
+
+def create_sgf(plansza: list[list[Tile]]):
+    sgf = ""
+    
+    alfabet = " abcdefghijklmnopqrstuvwxyz"
+    
+    for rzad in range(len(plansza)):
+        for kolumna in range(len(plansza[rzad])):
+            if plansza[rzad][kolumna] in [Tile.WHITE, Tile.BLACK]:
+                sgf += f"{"B" if plansza[rzad][kolumna] == Tile.BLACK else "W"}[{alfabet[kolumna]}{alfabet[rzad]}]{";" if (rzad, kolumna) != (len(plansza) - 1, len(plansza[rzad]) - 1) else ""}"
+    return sgf

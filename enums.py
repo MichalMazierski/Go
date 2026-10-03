@@ -22,6 +22,10 @@ class Tile(Enum):
     TEMP_OPPOSITE_ONE = 8
     
     TEMP_OPPOSITE_ZERO = 9
+    
+    WHITE_DEAD = 10
+    
+    BLACK_DEAD = 11
 
 
 class CheckPointResult(Enum):
