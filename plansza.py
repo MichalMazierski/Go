@@ -37,6 +37,8 @@ class Plansza:
                 Tile.BORDER.value: "\033[48;5;58m*\033[0m",
                 Tile.TEMP_ONE.value: "\033[48;5;222m*\033[0m",
                 Tile.TEMP_ZERO.value: "\033[48;5;55m*\033[0m",
+                Tile.TEMP_OPPOSITE_ONE.value: "\033[48;5;141m*\033[0m",
+                Tile.TEMP_OPPOSITE_ZERO.value: "\033[48;5;142m*\033[0m",
                 }
         print(
             "Legenda: "
@@ -47,7 +49,9 @@ class Plansza:
             "\033[48;5;60mBiałyPunkt\033[0m",
             "\033[48;5;58mRamka\033[0m",
             "\033[48;5;222mTempJeden\033[0m",
-            "\033[48;5;55mTempZero\033[0m"
+            "\033[48;5;55mTempZero\033[0m",
+            "\033[48;5;141mTempOppositeOne\033[0m",
+            "\033[48;5;142mTempOppositeZero\033[0m"
         )
         print("    ", end="")
         for i in range(len(plansza)):
@@ -56,9 +60,7 @@ class Plansza:
         for rzad in range(len(plansza)):
             print(str(rzad) + (".  " if rzad < 10 else ". "), end="")
             for kolumna in range(len(plansza[rzad])):
-
                 print(f"{slownik[plansza[rzad][kolumna].value]}", end="")
-
             print()
     
 
@@ -97,21 +99,24 @@ class Plansza:
         tile = Tile.BLACK if czy_czarne else Tile.WHITE
 
         empty = [
-            Tile.TEMP_ZERO
+            Tile.TEMP_ZERO,
+            Tile.TEMP_OPPOSITE_ZERO
         ]
 
         accepted = [
             Tile.BORDER,
             Tile.BLACK_POINT if czy_czarne else Tile.WHITE_POINT,
             tile,
-            Tile.TEMP_ONE
+            Tile.TEMP_ONE,
+            Tile.TEMP_OPPOSITE_ONE
         ]
 
         unaccepted = [
-            Tile.WHITE if czy_czarne else Tile.BLACK,
             Tile.WHITE_POINT if czy_czarne else Tile.BLACK_POINT,
             Tile.BORDER
         ]
+        
+        opposite = Tile.BLACK if not czy_czarne else Tile.WHITE
 
         temp_plansza = copy.deepcopy(plansza)
 
@@ -160,9 +165,9 @@ class Plansza:
                 ok_combo = 0
 
             if ok_combo >= 2 and temp_plansza[y][x] not in unaccepted:
-                temp_plansza[y][x] = Tile.TEMP_ONE
+                temp_plansza[y][x] = Tile.TEMP_ONE if temp_plansza[y][x] != opposite else Tile.TEMP_OPPOSITE_ONE
             else:
-                temp_plansza[y][x] = Tile.TEMP_ZERO
+                temp_plansza[y][x] = Tile.TEMP_ZERO if temp_plansza[y][x] != opposite else Tile.TEMP_OPPOSITE_ZERO
             
             for offset_x, offset_y in (
                 (-1, 0),
@@ -175,7 +180,7 @@ class Plansza:
 
                 if (
                     (nx, ny) not in odwiedzone
-                    and temp_plansza[ny][nx] == Tile.EMPTY
+                    and temp_plansza[ny][nx] in [Tile.EMPTY, opposite]
                 ):
                     sprawdz_rekursywny(nx, ny)
         
@@ -185,7 +190,7 @@ class Plansza:
 
             odwiedzone.append((x, y))
             
-            temp_plansza[y][x] = Tile.TEMP_ZERO
+            temp_plansza[y][x] = Tile.TEMP_ZERO if temp_plansza[y][x] != opposite else Tile.TEMP_OPPOSITE_ZERO
             
             for offset_x, offset_y in (
                 (-1, 0),
